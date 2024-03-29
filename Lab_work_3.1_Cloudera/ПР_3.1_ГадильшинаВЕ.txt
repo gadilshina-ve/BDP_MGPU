@@ -1,0 +1,311 @@
+Задание к теме: Работа в HDFS в экосистеме cloudera
+
+3.1.1. Развернуть виртуальное окружение.
++
+
+3.1.2. Вывести с помощью команды help описание основных команды shell-клиента.
+[cloudera@quickstart ~]$ hdfs dfs -help
+Usage: hadoop fs [generic options]
+	[-appendToFile <localsrc> ... <dst>]
+	[-cat [-ignoreCrc] <src> ...]
+
+3.1.3. Просмотреть корневую директорию HDFS.
+[cloudera@quickstart ~]$ hdfs dfs -ls /
+Found 6 items
+drwxrwxrwx   - hdfs  supergroup          0 2017-10-23 09:15 /benchmarks
+drwxr-xr-x   - hbase supergroup          0 2024-03-29 09:20 /hbase
+drwxr-xr-x   - solr  solr                0 2017-10-23 09:18 /solr
+drwxrwxrwt   - hdfs  supergroup          0 2024-02-17 00:44 /tmp
+drwxr-xr-x   - hdfs  supergroup          0 2017-10-23 09:17 /user
+drwxr-xr-x   - hdfs  supergroup          0 2017-10-23 09:17 /var
+
+3.1.4. Создать в HDFS в директории /user/mgpu поддиректорию ваше_фио.
+[cloudera@quickstart ~]$ hdfs dfs -mkdir /user/mgpu
+[cloudera@quickstart ~]$ hdfs dfs -mkdir /user/mgpu/gadilshina
+
+3.1.5. Создать в локальной файловой системе случайный текстовый файл размером 10 Mb с именем, образованным вашими инициалами base64 /dev/urandom | head -c 10000000 > file.txt .
+[cloudera@quickstart ~]$ base64 /dev/urandom | head -c 10000000 > gadilshina.txt
+[cloudera@quickstart ~]$ ls
+cloudera-manager  eclipse                     geolocation.zip  parcels     Videos
+cm_api.py         enterprise-deployment.json  kerberos         Pictures    workspace
+Desktop           express-deployment.json     lib              Public
+Documents         gadilshina.txt              __MACOSX         Templates
+Downloads         geolocation.csv             Music            trucks.csv
+
+3.1.6. Заархивировать созданный текстовый файл gzip -c file.txt > file.gz .
+[cloudera@quickstart ~]$ gzip -c gadilshina.txt > gadilshina.gz
+
+3.1.7. Скопировать текстовый файл и архив в директорию /user/mgpu/fio HDFS виртуальной машины.
+[cloudera@quickstart ~]$ hdfs dfs -copyFromLocal gadilshina.txt /user/mgpu/gadilshina
+[cloudera@quickstart ~]$ hdfs dfs -copyFromLocal gadilshina.gz /user/mgpu/gadilshina
+
+3.1.8. Просмотреть файл и архив с помощью утилит cat, text в комбинации с каналами и утилитами head, tail -- привести не менее 3 вариантов команд и просмотра файла.
+
+[cloudera@quickstart ~]$ cat gadilshina.txt
+
+KprashoTCqIBzzdxZOXN7rffXYBu4k6UNmljkvYJCyckwmMk80WgrDuEu+EjbvnS6PxIAcTDoOiS
+uNezk2Lkq3r2DraC99XmhY/UdLO0SOszdgUCeFn7wofHZPga878C4sJ2ErMeQh00CP26oFOL/psx
+TyQ5zu7GWUyawxKHGLi9CwNgdyZnWweJsF17kHFcTwOk0xBs1CTviLkmB0MxyVSUDtNwfs0jNA31
+99yH0LUr/M5xBcwwZxGCWF6HXXNOOFZwIJIVqP0xJwlYvR7B7Q7AdqfSig/INHnToGE7jXUefvhi
+vdJ2po61IISUd89sRw4nNibAIWlH+o9SWD01mH6Pso0QmTDJmZAuBJH8c4cPKUQPvFKIxOGXckk7
+eM8Y6e1WFmgBVQf043pnrzkd8pMQ1EtPrI2Bi1z4y0Qxg45ahiGrRdWRUVSkbmEyk71/kj5QfKYh
+KFaO5UW4sW39fu4gdA+i1Fiwx4U/gV0Dk8opP/10OpW5r6Hjje2yyFUeIuWNFsWqF8ZtEwREnrRn
+
+[cloudera@quickstart ~]$ cat -n gadilshina.txt
+
+129388	HI0g2gWscSXuNG4EmASbPAfi3g3wZd9IB/erzNtMiPc1s4I0zdDLHzyQ3CteWAS5CBn5YPBgdb/p
+129389	jsoAC9f7vDy4zR6vf2BICRttCAwQyUK/6KYnsgNRjUFPkZMI3u1cluDa0Rjn9mRB1s8T6lJl8aix
+129390	2JInWQskH5GpQl+MEgPNy0cahYaF5EW9Z2SkjwAl7/wlKR2ZZHpIkg+WOU+1Cmn05+xZXPzpBu0M
+129391	YmG/PiT+etWoVvgYt1Vm6rP3Qf3COe6aCVsAPptGPWSZPunYOSKxivHjsXFkU0uSEpslexYMSRKr
+129392	kYdCiwsNDB5A28XXZTr6OyXA2dKpoZcQwvo6JhaM+kWLQCjZSMQufpl7r1UZk6wgCxd/bMnGJtJt
+129393	Z9slbVJId7HMJF53EeMbxZvLaBrIQjvX/HxhdeKyDaX3imUGwUEDEEZenBlnFQPJKhGfA7oAwAgu
+129394	kt7DL3GZj1RaispGzGrU5l88zJoc08Ou1wLP/fWUrewcFqyxq5riFVgiOuKo5CEGY0vX+gN6RbyF
+
+[cloudera@quickstart ~]$  cat -b gadilshina.txt
+
+129360	KprashoTCqIBzzdxZOXN7rffXYBu4k6UNmljkvYJCyckwmMk80WgrDuEu+EjbvnS6PxIAcTDoOiS
+129361	uNezk2Lkq3r2DraC99XmhY/UdLO0SOszdgUCeFn7wofHZPga878C4sJ2ErMeQh00CP26oFOL/psx
+129362	TyQ5zu7GWUyawxKHGLi9CwNgdyZnWweJsF17kHFcTwOk0xBs1CTviLkmB0MxyVSUDtNwfs0jNA31
+129363	99yH0LUr/M5xBcwwZxGCWF6HXXNOOFZwIJIVqP0xJwlYvR7B7Q7AdqfSig/INHnToGE7jXUefvhi
+129364	vdJ2po61IISUd89sRw4nNibAIWlH+o9SWD01mH6Pso0QmTDJmZAuBJH8c4cPKUQPvFKIxOGXckk7
+129365	eM8Y6e1WFmgBVQf043pnrzkd8pMQ1EtPrI2Bi1z4y0Qxg45ahiGrRdWRUVSkbmEyk71/kj5QfKYh
+129366	KFaO5UW4sW39fu4gdA+i1Fiwx4U/gV0Dk8opP/10OpW5r6Hjje2yyFUeIuWNFsWqF8ZtEwREnrRn
+129367	t4CisqwhsYqYslpTq6txGxOpeeJ60Vs9G9a8qRxuAur7OaZFO0d6Hks1HJpVxrdRPQzGcQ96jBhj
+
+[cloudera@quickstart ~]$ head  gadilshina.txt
+
+VA2wxef8Slb26PbtbvYrGlFaKR/o2DclBBpHq8Rhb+RJOlxixsEvPy86HESJLFztpJPcTIDTmuuu
+twTQD81aIhFk7iYP3JlIa7ftQBJ+AAd1cAI7rLGc39AtTnL6xl+LzrIdSq/nPb/0hlM7PL8hVkxL
+QPl8FJwEgl/5SSTv7uya4W6bAOQ0+Imm2aHmajdIyX+8C6lbCo5XFkemhirCGlOAI0pzFsXfgR2i
+g5h26HX1vjOxzyN1BHdf0V9NPaGRg4LuIO/2zKxi1IOlqLU7BMZQl/VDWAWNsmFJ+oYsog7YpzlI
+m9a3OgCa9pmggP3E0Sc+d47QLViUioviEFXVKWODVLV/ByvQo/fKfZGXVjDS2Fd4iV3x0W9hzXmz
+ZSUYdlzb18TPHBdGdsWuQcC2xCbxlp+g3q+Zev9QIiE11fpzqV2XSNuUCN7YZhNxmNRBx8nnJymC
+oBPRs7PlsHx602sGmea5VrV1FKv0CN4vBbjZlA4ZYWbHYCVumSahkG3Fw85RQaqTP99bcxCiU0HG
+LplA8/+w9ZMBHbh75wp7ihF/zg/hULpXS4Vil2rv52mT5hr5Bi5BaUbtxEkMlHk1Sg6USeNGYH5U
+LvFPl9c6CnKxqH6OA3c7Ueb6fn2hYW7ypoI/6r8qm4N6cyc4GHYfMD9KUdwbXWHHskdDMIQdt8RQ
+0BuTZWHMnu19v61v48YnluEE3Ds+MmPi6LVg1LquWFPHFynQDdih1HIdlK+RyRam134muk6B8qNY
+
+[cloudera@quickstart ~]$ head -c 5 gadilshina.txt
+
+VA2wx
+
+[cloudera@quickstart ~]$  head -n 5 gadilshina.txt
+
+VA2wxef8Slb26PbtbvYrGlFaKR/o2DclBBpHq8Rhb+RJOlxixsEvPy86HESJLFztpJPcTIDTmuuu
+twTQD81aIhFk7iYP3JlIa7ftQBJ+AAd1cAI7rLGc39AtTnL6xl+LzrIdSq/nPb/0hlM7PL8hVkxL
+QPl8FJwEgl/5SSTv7uya4W6bAOQ0+Imm2aHmajdIyX+8C6lbCo5XFkemhirCGlOAI0pzFsXfgR2i
+g5h26HX1vjOxzyN1BHdf0V9NPaGRg4LuIO/2zKxi1IOlqLU7BMZQl/VDWAWNsmFJ+oYsog7YpzlI
+m9a3OgCa9pmggP3E0Sc+d47QLViUioviEFXVKWODVLV/ByvQo/fKfZGXVjDS2Fd4iV3x0W9hzXmz
+
+[cloudera@quickstart ~]$ tail gadilshina.txt
+
+XlPUQHQ+h/QGOi86N4Q8NchXJScp/XQGNnZbz5VTh2U6lg1CiNhD3nkdLY23XRs4xfeN135VfAY6
+QFaU+QDg3bOhRcLRK2X8HtBpIb7ETKQy6OncxSUgtKvbT67v8e+lRFWpWlrMn0YiHK8Pf6dwzYB6
+0kTYaLHNw1J9gLYEmY64VTDEPZ5EOj1ZmpQDAul3i25C45EH8FBQE0sEFy+kJY0cqxdrrSXG/eVq
+X7GgpzekT/N4HgikeeDuS/KzlF8q5VP1+EtUlCdnsEpPE5/GNyXDhREfzDfjxmT2LlQAmoUkZxtZ
+79AkSvk8S5M0AZwAdbBueb0mnvr2i7CcJRcL9JkkWRpZUSIYqS3UaK+bojcRsa0t8/Y9YSOMMVHo
+lhivALevPEcCHM1OYXQMp8davlModQdLVtZ6mSsle00Yk2GPVSgjKJIbzElmw0EhLetuB2dER6vH
+5C+7r6NgtEOlleEBCVe5B1lJQnyb8iA0bNxUxi64+ONt/0QrCAzY6XAlj5sLkDThHAytZs3JQSb8
+4j2H1Yyq9fOzh4HVWasnU/dgGsRINMQiSwf4cWk5lwvN5b0w64Mt2J3iDe+uD9MYm9guU76RJKgk
+mD/1tjPQCzJXjYjokjOWHuL2D9MQgMgBxXgzRe+geRubhWvsGhdCuW6yrJdWk+LWt3ukjYUVhE9z
+jURg/L8hr+
+
+[cloudera@quickstart ~]$ tail -c 5 gadilshina.txt
+
+L8hr+
+
+[cloudera@quickstart ~]$ tail -n 5 gadilshina.txt
+
+lhivALevPEcCHM1OYXQMp8davlModQdLVtZ6mSsle00Yk2GPVSgjKJIbzElmw0EhLetuB2dER6vH
+5C+7r6NgtEOlleEBCVe5B1lJQnyb8iA0bNxUxi64+ONt/0QrCAzY6XAlj5sLkDThHAytZs3JQSb8
+4j2H1Yyq9fOzh4HVWasnU/dgGsRINMQiSwf4cWk5lwvN5b0w64Mt2J3iDe+uD9MYm9guU76RJKgk
+mD/1tjPQCzJXjYjokjOWHuL2D9MQgMgBxXgzRe+geRubhWvsGhdCuW6yrJdWk+LWt3ukjYUVhE9z
+jURg/L8hr+
+
+3.1.9. Создать копию файла file.txt вида date_file.txt, где в начале имени файла-копии указана текущая дата. Вывести листинг.
+
+[cloudera@quickstart ~]$ cp gadilshina.txt 29.03.2024_gadilshina.txt
+[cloudera@quickstart ~]$ ls
+29.03.2024_gadilshina.txt  Downloads                   gadilshina.txt   __MACOSX  Templates
+cloudera-manager           eclipse                     geolocation.csv  Music     trucks.csv
+cm_api.py                  enterprise-deployment.json  geolocation.zip  parcels   Videos
+Desktop                    express-deployment.json     kerberos         Pictures  workspace
+Documents                  gadilshina.gz               lib              Public
+
+[cloudera@quickstart ~]$  hdfs dfs -cp /user/mgpu/gadilshina/gadilshina.txt /user/mgpu/gadilshina/29.03.2024_gadilshina.txt 
+[cloudera@quickstart ~]$  hdfs dfs -ls /user/mgpu/gadilshina/
+Found 3 items
+-rw-r--r--   1 cloudera supergroup   10000000 2024-03-29 10:58 /user/mgpu/gadilshina/29.03.2024_gadilshina.txt
+-rw-r--r--   1 cloudera supergroup    7599428 2024-03-29 10:10 /user/mgpu/gadilshina/gadilshina.gz
+-rw-r--r--   1 cloudera supergroup   10000000 2024-03-29 10:09 /user/mgpu/gadilshina/gadilshina.txt
+
+
+3.1.10. Вывести статистику по директории /user/mgpu/fio виртуальной машины.
+[cloudera@quickstart ~]$ hdfs dfs -ls /user/mgpu/gadilshina
+Found 3 items
+-rw-r--r--   1 cloudera supergroup   10000000 2024-03-29 10:58 /user/mgpu/gadilshina/29.03.2024_gadilshina.txt
+-rw-r--r--   1 cloudera supergroup    7599428 2024-03-29 10:10 /user/mgpu/gadilshina/gadilshina.gz
+-rw-r--r--   1 cloudera supergroup   10000000 2024-03-29 10:09 /user/mgpu/gadilshina/gadilshina.txt
+
+3.1.11. Удалить поддиректорию /fio со всем содержимым.
+[cloudera@quickstart ~]$ hdfs dfs -rm -R /user/mgpu/gadilshina
+Deleted /user/mgpu/gadilshina
+
+3.1.12. Подсчитать количество слов в файле внутри HDFS с помощью методологии Map Reduce (размер файла не менее 128 Мб).
+[cloudera@quickstart ~]$ base64 /dev/urandom | head -c 135000000 > 3.1.12__gadilshina_VE.txt
+
+[cloudera@quickstart ~]$  hdfs dfs -copyFromLocal 3.1.12__gadilshina_VE.txt /user/mgpu/gadilshina
+
+[cloudera@quickstart ~]$ yarn jar /usr/lib/hadoop-mapreduce/hadoop-mapreduce-examples.jar wordcount /user/mgpu/gadilshina/3.1.12__gadilshina_VE.txt /user/mgpu/gadilshina/output
+
+24/03/29 11:15:32 INFO client.RMProxy: Connecting to ResourceManager at /0.0.0.0:8032
+24/03/29 11:15:33 INFO mapreduce.JobSubmitter: Cleaning up the staging area /tmp/hadoop-yarn/staging/cloudera/.staging/job_1711729182730_0001
+24/03/29 11:15:33 WARN security.UserGroupInformation: PriviledgedActionException as:cloudera (auth:SIMPLE) cause:org.apache.hadoop.mapreduce.lib.input.InvalidInputException: Input path does not exist: hdfs://quickstart.cloudera:8020/user/mgpu/gadilshina/3.1.12__gadilshina_VE.txt
+org.apache.hadoop.mapreduce.lib.input.InvalidInputException: Input path does not exist: hdfs://quickstart.cloudera:8020/user/mgpu/gadilshina/3.1.12__gadilshina_VE.txt
+	at org.apache.hadoop.mapreduce.lib.input.FileInputFormat.singleThreadedListStatus(FileInputFormat.java:323)
+	at org.apache.hadoop.mapreduce.lib.input.FileInputFormat.listStatus(FileInputFormat.java:265)
+	at org.apache.hadoop.mapreduce.lib.input.FileInputFormat.getSplits(FileInputFormat.java:387)
+	at org.apache.hadoop.mapreduce.JobSubmitter.writeNewSplits(JobSubmitter.java:305)
+	at org.apache.hadoop.mapreduce.JobSubmitter.writeSplits(JobSubmitter.java:322)
+	at org.apache.hadoop.mapreduce.JobSubmitter.submitJobInternal(JobSubmitter.java:200)
+	at org.apache.hadoop.mapreduce.Job$10.run(Job.java:1307)
+	at org.apache.hadoop.mapreduce.Job$10.run(Job.java:1304)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at javax.security.auth.Subject.doAs(Subject.java:415)
+	at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1917)
+	at org.apache.hadoop.mapreduce.Job.submit(Job.java:1304)
+	at org.apache.hadoop.mapreduce.Job.waitForCompletion(Job.java:1325)
+	at org.apache.hadoop.examples.WordCount.main(WordCount.java:87)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:606)
+	at org.apache.hadoop.util.ProgramDriver$ProgramDescription.invoke(ProgramDriver.java:71)
+	at org.apache.hadoop.util.ProgramDriver.run(ProgramDriver.java:144)
+	at org.apache.hadoop.examples.ExampleDriver.main(ExampleDriver.java:74)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:606)
+	at org.apache.hadoop.util.RunJar.run(RunJar.java:221)
+	at org.apache.hadoop.util.RunJar.main(RunJar.java:136)
+
+3.2. Создание таблицы в Hive
+1.	Скачать датасет или тут
+[cloudera@quickstart ~]$ wget https://github.com/BosenkoTM/cloudera-quickstart/blob/main/data/athlete.snappy.parquet
+--2024-03-29 11:45:30--  https://github.com/BosenkoTM/cloudera-quickstart/blob/main/data/athlete.snappy.parquet
+Resolving github.com... 140.82.121.3
+Connecting to github.com|140.82.121.3|:443... connected.
+HTTP request sent, awaiting response... 200 OK
+Length: unspecified [text/html]
+Saving to: “athlete.snappy.parquet”
+
+    [ <=>                                   ] 147,480     --.-K/s   in 0.1s    
+
+2024-03-29 11:45:31 (1.26 MB/s) - “athlete.snappy.parquet” saved [147480]
+
+[cloudera@quickstart ~]$ ls
+29.03.2024_gadilshina.txt  cm_api.py  enterprise-deployment.json  geolocation.zip  parcels     Videos
+3.1.12__gadilshina_SV.txt  Desktop    express-deployment.json     kerberos         Pictures    workspace
+3.1.12__gadilshina_VE.txt  Documents  gadilshina.gz               lib              Public
+athlete.snappy.parquet     Downloads  gadilshina.txt              __MACOSX         Templates
+cloudera-manager           eclipse    geolocation.csv             Music            trucks.csv
+
+2.	Через HUE загрузите файл в папку /user/cloudera/athlete. +
+
+3.	В навигационном меню выберите Files. +
+
+4.	Создайте папку.+
+
+5.	Загрузите файл в HDFS, нажав Upload. +
+
+6.      Перейдите в “Editor > Hive” и выполните запрос: +
+CREATE EXTERNAL TABLE athlete (
+    ID INT,
+    Name STRING,
+    Sex STRING,
+    Age INT,
+    Height INT,
+    Weight INT,
+    Team STRING,
+    NOC STRING,
+    Games STRING,
+    `Year` INT,
+    Season STRING,
+    City STRING,
+    Sport STRING,
+    Event STRING,
+    Medal STRING 
+)
+STORED AS PARQUET
+LOCATION '/user/cloudera/athlete'
+
+3.3 Проанализировать и визуализировать данные с помощью Impala (высокоскоростной механизм запросов SQL) или Hive.
+•	Загрузить и разархивировать babs_open_data_year_1.zip.
+[cloudera@quickstart ~]$ wget https://community.cloudera.com/xgkfq28377/attachments/xgkfq28377/Questions/87306/1/babs_open_data_year_1.zip
+--2024-03-29 12:38:13--  https://community.cloudera.com/xgkfq28377/attachments/xgkfq28377/Questions/87306/1/babs_open_data_year_1.zip
+Resolving community.cloudera.com... 143.204.237.55, 143.204.237.25, 143.204.237.129, ...
+Connecting to community.cloudera.com|143.204.237.55|:443... connected.
+HTTP request sent, awaiting response... 200 OK
+Length: 74878 (73K) [application/zip]
+Saving to: “babs_open_data_year_1.zip”
+
+100%[=================================================================================================>] 74,878      --.-K/s   in 0.04s   
+
+2024-03-29 12:38:15 (1.74 MB/s) - “babs_open_data_year_1.zip” saved [74878/74878]
+
+[cloudera@quickstart ~]$ ls
+29.03.2024_gadilshina.txt  cloudera-manager  eclipse                     geolocation.csv  Music      trucks.csv
+3.1.12__gadilshina_SV.txt  cm_api.py         enterprise-deployment.json  geolocation.zip  parcels    Videos
+3.1.12__gadilshina_VE.txt  Desktop           express-deployment.json     kerberos         Pictures   workspace
+athlete.snappy.parquet     Documents         gadilshina.gz               lib              Public
+babs_open_data_year_1.zip  Downloads         gadilshina.txt              __MACOSX         Templates
+
+[cloudera@quickstart ~]$ unzip babs_open_data_year_1.zip
+Archive:  babs_open_data_year_1.zip
+   creating: 201402_babs_open_data/
+  inflating: 201402_babs_open_data/201402_station_data.csv  
+  inflating: 201402_babs_open_data/201402_status_data.csv  
+  inflating: 201402_babs_open_data/201402_trip_data.csv  
+  inflating: 201402_babs_open_data/201402_weather_data.csv  
+  inflating: 201402_babs_open_data/README.txt  
+   creating: 201408_babs_open_data/
+  inflating: 201408_babs_open_data/201408_station_data.csv  
+  inflating: 201408_babs_open_data/201408_status_data.csv  
+  inflating: 201408_babs_open_data/201408_trip_data.csv  
+  inflating: 201408_babs_open_data/201408_weather_data.csv  
+  inflating: 201408_babs_open_data/README.txt  
+
+•	Перенести данные 201402_trip_data.csv в HDFS. +
+
+•	Создать таблицу в Hive с привязкой к внешним данным 201402_trip_data.csv. +
+CREATE EXTERNAL TABLE 201402_trip_data (  
+TripID INT,  
+Duration INT,  
+StartDate STRING,  
+startstation STRING,  
+StartTerminal INT,  
+EndDate STRING,  
+endstation STRING,  
+EndTerminal INT,  
+Bike INT,  
+SubscriptionType STRING,  
+ZipCode STRING  
+)  
+ROW FORMAT DELIMITED
+FIELDS TERMINATED BY ','
+LOCATION '/user/cloudera/trip_data'
+
+•	выполнить запрос +
+select `startstation`, `endstation`, count(*) as trips 
+from `default`.`201402_trip_data` 
+group by `startstation`, `endstation` 
+order by trips desc;
+
+•	Создать гистограмму, щелкнув значок «Hue Bar»: +
+
+•	Установить ось X в качестве начальной станции, а ось Y — в качестве маршрута. Установить лимит 10. +
+
+•	Выгрузить результаты, выбрав CSV или Excel. +
+
+
