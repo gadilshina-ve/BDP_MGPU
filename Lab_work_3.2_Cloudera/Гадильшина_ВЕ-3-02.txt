@@ -1,0 +1,478 @@
+3-2.1 Скачать архив Geolocation github zip или Geolocation data из Cloudera.
+
+
+Создать каталог ex_3_2:
+[cloudera@quickstart ~]$ mkdir ex_3_2
+[cloudera@quickstart ~]$ ls
+201402_babs_open_data      Documents                   lib
+201408_babs_open_data      Downloads                   __MACOSX
+29.03.2024_gadilshina.txt  eclipse                     Music
+3.1.12__gadilshina_SV.txt  enterprise-deployment.json  parcels
+3.1.12__gadilshina_VE.txt  ex_3_2                      Pictures
+athlete.snappy.parquet     express-deployment.json     Public
+babs_open_data_year_1      gadilshina.gz               Templates
+babs_open_data_year_1.zip  gadilshina.txt              trucks.csv
+cloudera-manager           geolocation.csv             Videos
+cm_api.py                  geolocation.zip             workspace
+Desktop                    kerberos
+
+Перейти в каталог ex_3_2:
+[cloudera@quickstart ~]$ cd  ex_3_2
+[cloudera@quickstart ex_3_2]$ ls
+
+
+Скачать данные Geolocation data:
+[cloudera@quickstart ex_3_2]$ wget https://github.com/BosenkoTM/cloudera-quickstart/blob/main/data/geolocation.zip
+--2024-04-08 01:17:29--  https://github.com/BosenkoTM/cloudera-quickstart/blob/main/data/geolocation.zip
+Resolving github.com... 140.82.121.3
+Connecting to github.com|140.82.121.3|:443... connected.
+HTTP request sent, awaiting response... 200 OK
+Length: unspecified [text/html]
+Saving to: “geolocation.zip”
+
+    [    <=>                                ] 147,979      161K/s   in 0.9s    
+
+2024-04-08 01:17:30 (161 KB/s) - “geolocation.zip” saved [147979]
+
+[cloudera@quickstart ex_3_2]$ ls
+geolocation.zip
+
+
+Разархивировать данные:
+[cloudera@quickstart ex_3_2]$ wget https://github.com/BosenkoTM/cloudera-quickstart/blob/main/data/geolocation.csv
+--2024-04-08 01:22:40--  https://github.com/BosenkoTM/cloudera-quickstart/blob/main/data/geolocation.csv
+Resolving github.com... 140.82.121.4
+Connecting to github.com|140.82.121.4|:443... connected.
+HTTP request sent, awaiting response... 200 OK
+Length: unspecified [text/html]
+Saving to: “geolocation.csv”
+
+    [     <=>                                                     ] 842,717      620K/s   in 1.3s    
+
+2024-04-08 01:22:42 (620 KB/s) - “geolocation.csv” saved [842717]
+
+[cloudera@quickstart ex_3_2]$ ls
+geolocation.csv  geolocation.zip
+
+[cloudera@quickstart ex_3_2]$ wget https://github.com/BosenkoTM/cloudera-quickstart/blob/main/data/trucks.csv
+--2024-04-08 01:29:31--  https://github.com/BosenkoTM/cloudera-quickstart/blob/main/data/trucks.csv
+Resolving github.com... 140.82.121.3
+Connecting to github.com|140.82.121.3|:443... connected.
+HTTP request sent, awaiting response... 200 OK
+Length: unspecified [text/html]
+Saving to: “trucks.csv”
+
+    [   <=>                                                               ] 231,916      555K/s   in 0.4s    l
+
+2024-04-08 01:29:32 (555 KB/s) - “trucks.csv” saved [231916]
+
+[cloudera@quickstart ex_3_2]$ ls
+geolocation.csv  geolocation.zip  trucks.csv
+
+
+3-2.2 В Hue, выбрать Browsers > Files. +
+Создайте новый каталог в HDFS с именем data внутри HDFS из Hue. По умолчанию это должно быть создано под hdfs:///user/cloudera/. +
+Загрузите Geolocation.csv и trucks.csv в только что созданную папку geoloc/. +
+
+
+3-2.3 Запустить скрипт/команды, чтобы загрузить и отобразить первые десять строк из файла 'geoloc/geolocation.csv' в каталог 'results-geoloc'(он будет создан автоматически, после выполнения скрипта) в редакторе Pig через Hue: Query > Editor > Pig:
+
+geoloc = LOAD 'geoloc/geolocation.csv' USING PigStorage(',') AS (truckid:chararray, 
+driverid:chararray, event:chararray, latitude:double, longitude:double, city:chararray, 
+state:chararray, velocity:double, event_ind:long, idling_ind:long);
+geoloc_limit = LIMIT geoloc 10;
+STORE geoloc_limit INTO 'results-geoloc'; 
+DUMP geoloc_limit;
+
+Сначала убедиться в запуске Dataflow инструмента Oozie. На панели инструментов линк Oozie должен быть активным. +
+
+После получения метаданных выполнения запроса:
+Successfully stored 10 records (171 bytes) in: "hdfs://quickstart.cloudera:8020/tmp/temp883206969/tmp29118531"
+108	Successfully stored 10 records (133 bytes) in: "hdfs://quickstart.cloudera:8020/user/cloudera/results-geoloc"
+105	Successfully read 10 records (4483 bytes) from: "hdfs://quickstart.cloudera:8020/user/cloudera/geoloc/geolocation.csv"
+277	Successfully read 10 records (4483 bytes) from: "hdfs://quickstart.cloudera:8020/user/cloudera/geoloc/geolocation.csv"
+97	Success!
+269	Success!
+
+
+Проверить в каталоге 'results-geoloc' файл 'part-r-00000' +
+A19	A19	normal	37.962146	-122.345526	San Pablo	California	0.0	0	1
+A20	A20	normal	36.977173	-121.899402	Aptos	California	27.0	0	0
+A31	A31	normal	39.409608	-123.355566	Willits	California	22.0	0	0
+A40	A40	overspeed	37.957702	-121.29078	Stockton	California	77.0	1	0
+A50	A50	normal	38.40765	-122.947713	Occidental	California	0.0	0	1
+A51	A51	normal	37.639097	-120.996878	Modesto	California	0.0	0	1
+A54	A54	normal	38.440467	-122.714431	Santa Rosa	California	17.0	0	0
+A71	A71	normal	33.683947	-117.794694	Irvine	California	43.0	0	0
+A77	A77	normal	37.962146	-122.345526	San Pablo	California	25.0	0	0
+truckid	driverid	event			city	state			
+
+
+3-2.4 Посчитать статистику по файлу.
+
+geoloc = LOAD 'geoloc/geolocation.csv' USING PigStorage(',') AS (truckid:chararray, driverid:chararray, event:chararray, latitude:double, longitude:double, city:chararray, state:chararray, velocity:double, event_ind:long, idling_ind:long);
+truck_ids = GROUP geoloc BY truckid;
+result = FOREACH truck_ids GENERATE group AS truckid, COUNT(geoloc) as count;
+STORE result INTO 'results2';
+DUMP result;
+
+Просмотреть Job DAG Oozie во время выполнения запроса к Pig +
+
+Провирить в каталоге 'results2' файл 'part-r-00000' +
+A1	80
+A2	80
+A3	80
+A4	80
+A5	80
+A6	80
+A7	80
+A8	80
+A9	80
+A10	80
+A11	80
+A12	80
+A13	80
+A14	80
+A15	80
+A16	80
+A17	80
+A18	80
+A19	80
+A20	80
+A21	80
+A22	80
+A23	80
+A24	80
+A25	80
+A26	80
+A27	80
+A28	80
+A29	80
+A30	80
+A31	80
+A32	80
+A33	80
+A34	80
+A35	80
+A36	80
+A37	80
+A38	80
+A39	80
+A40	80
+A41	80
+A42	80
+A43	80
+A44	80
+A45	80
+A46	80
+A47	80
+A48	80
+A49	80
+A50	80
+A51	80
+A52	80
+A53	80
+A54	80
+A55	80
+A56	80
+A57	80
+A58	80
+A59	80
+A60	80
+A61	80
+A62	80
+A63	80
+A64	80
+A65	80
+A66	80
+A67	80
+A68	80
+A69	80
+A70	80
+A71	80
+A72	80
+A73	80
+A74	80
+A75	80
+A76	80
+A77	80
+A78	80
+A79	80
+A80	80
+A81	80
+A82	80
+A83	80
+A84	80
+A85	80
+A86	80
+A87	80
+A88	80
+A89	80
+A90	80
+A91	80
+A92	80
+A93	80
+A94	80
+A95	80
+A96	80
+A97	80
+A98	80
+A99	80
+A100	80
+truckid	1
+
+
+3-2.5 Анализ.
+•	Провести анализ журналов Hadoop > YARN Resource Manager в Firefox. Продоставить в виде скринов все задачи, выполенные в п 3-2.1 - 3-2.4. +
+
+•	Подсчитать количество уникальных городов, в которых был уникальный грузовик по его truckid, среднюю скорость грузовика из файла trucks.csv?
+
+
+лог-файл работы HDFS:
+
+[cloudera@quickstart ~]$ ls
+201402_babs_open_data      Documents                   __MACOSX
+201408_babs_open_data      Downloads                   Music
+29.03.2024_gadilshina.txt  eclipse                     parcels
+3.1.12__gadilshina_SV.txt  enterprise-deployment.json  Pictures
+3.1.12__gadilshina_VE.txt  express-deployment.json     Public
+athlete.snappy.parquet     gadilshina.gz               Templates
+babs_open_data_year_1      gadilshina.txt              trucks.csv
+babs_open_data_year_1.zip  geolocation.csv             Videos
+cloudera-manager           geolocation.zip             workspace
+cm_api.py                  kerberos
+Desktop                    lib
+[cloudera@quickstart ~]$ mkdir ex_3_2
+[cloudera@quickstart ~]$ ls
+201402_babs_open_data      Documents                   lib
+201408_babs_open_data      Downloads                   __MACOSX
+29.03.2024_gadilshina.txt  eclipse                     Music
+3.1.12__gadilshina_SV.txt  enterprise-deployment.json  parcels
+3.1.12__gadilshina_VE.txt  ex_3_2                      Pictures
+athlete.snappy.parquet     express-deployment.json     Public
+babs_open_data_year_1      gadilshina.gz               Templates
+babs_open_data_year_1.zip  gadilshina.txt              trucks.csv
+cloudera-manager           geolocation.csv             Videos
+cm_api.py                  geolocation.zip             workspace
+Desktop                    kerberos
+[cloudera@quickstart ~]$ clear
+
+[cloudera@quickstart ~]$ cd  ex_3_2
+[cloudera@quickstart ex_3_2]$ ls
+[cloudera@quickstart ex_3_2]$ ^C
+[cloudera@quickstart ex_3_2]$ wget https://github.com/BosenkoTM/cloudera-quickstart/blob/main/data/geolocation.zip
+--2024-04-08 01:17:29--  https://github.com/BosenkoTM/cloudera-quickstart/blob/main/data/geolocation.zip
+Resolving github.com... 140.82.121.3
+Connecting to github.com|140.82.121.3|:443... connected.
+HTTP request sent, awaiting response... 200 OK
+Length: unspecified [text/html]
+Saving to: “geolocation.zip”
+
+    [    <=>                                ] 147,979      161K/s   in 0.9s    
+
+2024-04-08 01:17:30 (161 KB/s) - “geolocation.zip” saved [147979]
+
+[cloudera@quickstart ex_3_2]$ ls
+geolocation.zip
+[cloudera@quickstart ex_3_2]$ unzip geolocation.zip
+Archive:  geolocation.zip
+  End-of-central-directory signature not found.  Either this file is not
+  a zipfile, or it constitutes one disk of a multi-part archive.  In the
+  latter case the central directory and zipfile comment will be found on
+  the last disk(s) of this archive.
+unzip:  cannot find zipfile directory in one of geolocation.zip or
+        geolocation.zip.zip, and cannot find geolocation.zip.ZIP, period.
+[cloudera@quickstart ex_3_2]$ wget https://github.com/BosenkoTM/cloudera-quickstart/blob/main/data/geolocation.csv
+--2024-04-08 01:22:40--  https://github.com/BosenkoTM/cloudera-quickstart/blob/main/data/geolocation.csv
+Resolving github.com... 140.82.121.4
+Connecting to github.com|140.82.121.4|:443... connected.
+HTTP request sent, awaiting response... 200 OK
+Length: unspecified [text/html]
+Saving to: “geolocation.csv”
+
+    [     <=>                                                     ] 842,717      620K/s   in 1.3s    
+
+2024-04-08 01:22:42 (620 KB/s) - “geolocation.csv” saved [842717]
+
+[cloudera@quickstart ex_3_2]$ ls
+geolocation.csv  geolocation.zip
+[cloudera@quickstart ex_3_2]$ ls
+geolocation.csv  geolocation.zip
+[cloudera@quickstart ex_3_2]$ wget https://github.com/BosenkoTM/cloudera-quickstart/blob/main/data/trucks.csv
+--2024-04-08 01:29:31--  https://github.com/BosenkoTM/cloudera-quickstart/blob/main/data/trucks.csv
+Resolving github.com... 140.82.121.3
+Connecting to github.com|140.82.121.3|:443... connected.
+HTTP request sent, awaiting response... 200 OK
+Length: unspecified [text/html]
+Saving to: “trucks.csv”
+
+    [   <=>                                                               ] 231,916      555K/s   in 0.4s    l
+
+2024-04-08 01:29:32 (555 KB/s) - “trucks.csv” saved [231916]
+
+[cloudera@quickstart ex_3_2]$ ls
+geolocation.csv  geolocation.zip  trucks.csv
+[cloudera@quickstart ex_3_2]$ clear
+
+[cloudera@quickstart ex_3_2]$ hisrory
+bash: hisrory: command not found
+[cloudera@quickstart ex_3_2]$ history
+    1  wget https://community.cloudera.com/xgkfq28377/attachments/xgkfq28377/Questions/87306/1/geolocation.zip
+    2  ls
+    3  unzip geolocation.csv
+    4  unzip geolocation.zip
+    5  ls
+    6  clear
+    7  hdfs version
+    8  hdfs dfs -help
+    9  clear
+   10  ls /
+   11  hdfs dfs -ls /
+   12  [cloudera@quickstart ~]$ hdfs dfs -ls /
+   13  Found 6 items
+   14  drwxrwxrwx   - hdfs  supergroup          0 2017-10-23 09:15 /benchmarks
+   15  drwxr-xr-x   - hbase supergroup          0 2024-03-29 09:20 /hbase
+   16  drwxr-xr-x   - solr  solr                0 2017-10-23 09:18 /solr
+   17  drwxrwxrwt   - hdfs  supergroup          0 2024-02-17 00:44 /tmp
+   18  drwxr-xr-x   - hdfs  supergroup          0 2017-10-23 09:17 /user
+   19  clear
+   20  hdfs dfs -ls /
+   21  hdfs dfs -mkdir /user/mgpu
+   22  hdfs dfs -mkdir /user/mgpu/gadilshina
+   23  base64 /dev/urandom | head -c 10000000 > gadilshina.txt
+   24  ls
+   25  [cloudera@quickstart ~]$ ls
+   26  cloudera-manager  eclipse                     geolocation.zip  parcels     Videos
+   27  cm_api.py         enterprise-deployment.json  kerberos         Pictures    workspace
+   28  Desktop           express-deployment.json     lib              Public
+   29  Documents         gadilshina.txt              __MACOSX         Templates
+   30  Downloads         geolocation.csv             Music            trucks.csv
+   31  bash: [cloudera@quickstart: command not found
+   32  [cloudera@quickstart ~]$ cloudera-manager  eclipse                     geolocation.zip  parcels     Videos
+   33  bash: cloudera-manager: command not found
+   34  [cloudera@quickstart ~]$ cm_api.py         enterprise-deployment.json  kerberos         Pictures    workspace
+   35  bash: cm_api.py: command not found
+   36  [cloudera@quickstart ~]$ Desktop           express-deployment.json     lib              Public
+   37  bash: Desktop: command not found
+   38  [cloudera@quickstart ~]$ Documents         gadilshina.txt              __MACOSX         Templates
+   39  bash: Documents: command not found
+   40  [cloudera@quickstart ~]$ Downloads         geolocation.csv             Music            trucks.csv
+   41  bash: Downloads: command not found
+   42  [cloudera@quickstart ~]$ 
+   43  bash: [cloudera@quickstart: command not found
+   44  [cloudera@quickstart ~]$ cloudera-manager  eclipse                     geolocation.zip  parcels     Videos
+   45  bash: cloudera-manager: command not found
+   46  [cloudera@quickstart ~]$ cm_api.py         enterprise-deployment.json  kerberos         Pictures    workspace
+   47  bash: cm_api.py: command not found
+   48  [cloudera@quickstart ~]$ Desktop           express-deployment.json     lib              Public
+   49  bash: Desktop: command not found
+   50  [cloudera@quickstart ~]$ Documents         gadilshina.txt              __MACOSX         Templates
+   51  bash: Documents: command not found
+   52  [cloudera@quickstart ~]$ Downloads         geolocation.csv             Music            trucks.csv
+   53  bash: Downloads: command not found
+   54  [cloudera@quickstart ~]$ 
+   55  gzip -c gadilshina.txt > gadilshina.gz
+   56  hdfs dfs -copyFromLocal gadilshina.txt /user/mgpu/gadilshina
+   57  hdfs dfs -copyFromLocal gadilshina.gz /user/mgpu/gadilshina
+   58  clear
+   59  cat gadilsina.txt
+   60  cat gadilshina.txt
+   61  clear
+   62  cat gadilshina.txt
+   63  clear
+   64  cat gadilshina.txt
+   65  ckear
+   66  clear
+   67  cat -n gadilshina.txt
+   68  129360KprashoTCqIBzzdxZOXN7rffXYBu4k6UNmljkvYJCyckwmMk80WgrDuEu+EjbvnS6PxIAcTDoOiS
+   69  129361uNezk2Lkq3r2DraC99XmhY/UdLO0SOszdgUCeFn7wofHZPga878C4sJ2ErMeQh00CP26oFOL/psx
+   70  129362TyQ5zu7GWUyawxKHGLi9CwNgdyZnWweJsF17kHFcTwOk0xBs1CTviLkmB0MxyVSUDtNwfs0jNA31
+   71  12936399yH0LUr/M5xBcwwZxGCWF6HXXNOOFZwIJIVqP0xJwlYvR7B7Q7AdqfSig/INHnToGE7jXUefvhi
+   72  129364vdJ2po61IISUd89sRw4nNibAIWlH+o9SWD01mH6Pso0QmTDJmZAuBJH8c4cPKUQPvFKIxOGXckk7
+   73  129365eM8Y6e1WFmgBVQf043pnrzkd8pMQ1EtPrI2Bi1z4y0Qxg45ahiGrRdWRUVSkbmEyk71/kj5QfKYh
+   74  129366KFaO5UW4sW39fu4gdA+i1Fiwx4U/gV0Dk8opP/10OpW5r6Hjje2yyFUeIuWNFsWqF8ZtEwREnrRn
+   75  clear
+   76   cat -b gadilshina.txt
+   77  129360KprashoTCqIBzzdxZOXN7rffXYBu4k6UNmljkvYJCyckwmMk80WgrDuEu+EjbvnS6PxIAcTDoOiS
+   78  129361uNezk2Lkq3r2DraC99XmhY/UdLO0SOszdgUCeFn7wofHZPga878C4sJ2ErMeQh00CP26oFOL/psx
+   79  129362TyQ5zu7GWUyawxKHGLi9CwNgdyZnWweJsF17kHFcTwOk0xBs1CTviLkmB0MxyVSUDtNwfs0jNA31
+   80  12936399yH0LUr/M5xBcwwZxGCWF6HXXNOOFZwIJIVqP0xJwlYvR7B7Q7AdqfSig/INHnToGE7jXUefvhi
+   81  129364vdJ2po61IISUd89sRw4nNibAIWlH+o9SWD01mH6Pso0QmTDJmZAuBJH8c4cPKUQPvFKIxOGXckk7
+   82  129365eM8Y6e1WFmgBVQf043pnrzkd8pMQ1EtPrI2Bi1z4y0Qxg45ahiGrRdWRUVSkbmEyk71/kj5QfKYh
+   83  129366KFaO5UW4sW39fu4gdA+i1Fiwx4U/gV0Dk8opP/10OpW5r6Hjje2yyFUeIuWNFsWqF8ZtEwREnrRn
+   84  129367t4CisqwhsYqYslpTq6txGxOpeeJ60Vs9G9a8qRxuAur7OaZFO0d6Hks1HJpVxrdRPQzGcQ96jBhj
+   85  clear
+   86  head  gadilshina.txt
+   87  VA2wxef8Slb26PbtbvYrGlFaKR/o2DclBBpHq8Rhb+RJOlxixsEvPy86HESJLFztpJPcTIDTmuuu
+   88  twTQD81aIhFk7iYP3JlIa7ftQBJ+AAd1cAI7rLGc39AtTnL6xl+LzrIdSq/nPb/0hlM7PL8hVkxL
+   89  QPl8FJwEgl/5SSTv7uya4W6bAOQ0+Imm2aHmajdIyX+8C6lbCo5XFkemhirCGlOAI0pzFsXfgR2i
+   90  g5h26HX1vjOxzyN1BHdf0V9NPaGRg4LuIO/2zKxi1IOlqLU7BMZQl/VDWAWNsmFJ+oYsog7YpzlI
+   91  m9a3OgCa9pmggP3E0Sc+d47QLViUioviEFXVKWODVLV/ByvQo/fKfZGXVjDS2Fd4iV3x0W9hzXmz
+   92  ZSUYdlzb18TPHBdGdsWuQcC2xCbxlp+g3q+Zev9QIiE11fpzqV2XSNuUCN7YZhNxmNRBx8nnJymC
+   93  oBPRs7PlsHx602sGmea5VrV1FKv0CN4vBbjZlA4ZYWbHYCVumSahkG3Fw85RQaqTP99bcxCiU0HG
+   94  LplA8/+w9ZMBHbh75wp7ihF/zg/hULpXS4Vil2rv52mT5hr5Bi5BaUbtxEkMlHk1Sg6USeNGYH5U
+   95  LvFPl9c6CnKxqH6OA3c7Ueb6fn2hYW7ypoI/6r8qm4N6cyc4GHYfMD9KUdwbXWHHskdDMIQdt8RQ
+   96  0BuTZWHMnu19v61v48YnluEE3Ds+MmPi6LVg1LquWFPHFynQDdih1HIdlK+RyRam134muk6B8qNYVA2wxef8Slb26PbtbvYrGlFaKR/o2DclBBpHq8Rhb+RJOlxixsEvPy86HESJLFztpJPcTIDTmuuu
+   97  twTQD81aIhFk7iYP3JlIa7ftQBJ+AAd1cAI7rLGc39AtTnL6xl+LzrIdSq/nPb/0hlM7PL8hVkxL
+   98  QPl8FJwEgl/5SSTv7uya4W6bAOQ0+Imm2aHmajdIyX+8C6lbCo5XFkemhirCGlOAI0pzFsXfgR2i
+   99  g5h26HX1vjOxzyN1BHdf0V9NPaGRg4LuIO/2zKxi1IOlqLU7BMZQl/VDWAWNsmFJ+oYsog7YpzlI
+  100  m9a3OgCa9pmggP3E0Sc+d47QLViUioviEFXVKWODVLV/ByvQo/fKfZGXVjDS2Fd4iV3x0W9hzXmz
+  101  ZSUYdlzb18TPHBdGdsWuQcC2xCbxlp+g3q+Zev9QIiE11fpzqV2XSNuUCN7YZhNxmNRBx8nnJymC
+  102  oBPRs7PlsHx602sGmea5VrV1FKv0CN4vBbjZlA4ZYWbHYCVumSahkG3Fw85RQaqTP99bcxCiU0HG
+  103  LplA8/+w9ZMBHbh75wp7ihF/zg/hULpXS4Vil2rv52mT5hr5Bi5BaUbtxEkMlHk1Sg6USeNGYH5U
+  104  LvFPl9c6CnKxqH6OA3c7Ueb6fn2hYW7ypoI/6r8qm4N6cyc4GHYfMD9KUdwbXWHHskdDMIQdt8RQ
+  105  0BuTZWHMnu19v61v48YnluEE3Ds+MmPi6LVg1LquWFPHFynQDdih1HIdlK+RyRam134muk6B8qNY
+  106  clear
+  107  head -c 5 gadilshina[cloudera@quickstart ~]$ head -c 5 gadilshina.txt.txt
+  108  [cloudera@quickstart ~]$ head -c 5 gadilshina.txt
+  109  ckear
+  110  clear
+  111   head -c 5 gadilshina.txt
+  112   head -c 7 gadilshina.txt
+  113   head -n 5 gadilshina.txt
+  114  tail gadilshina.txt
+  115  cclear
+  116  clear
+  117  tail -c 5 gadilshina.txt
+  118  tail -n 5 gadilshina.txt
+  119  clear
+  120  cp gadilshina.txt 29.03.2024_gadilshina.txt
+  121  ls
+  122   hdfs dfs -cp /user/mgpu/gadilshina/gadilshina.txt /user/mgpu/gadilshina/29.03.2024_gadilshina.txt
+  123   hdfs dfs -ls /user/mgpu/gadilshina/
+  124  clear
+  125  hdfs dfs -ls /user/mgpu/gadilshina
+  126  hdfs dfs -rm -R /user/mgpu/gadilshina
+  127  clear
+  128  base64 /dev/urandom | head -c 135000000 > 3.1.12__gadilshina_SV.txt
+  129  base64 /dev/urandom | head -c 135000000 > 3.1.12__gadilshina_VE.txt
+  130   hdfs dfs -copyFromLocal 3.1.12__gadilshina_VE.txt /user/mgpu/gadilshina
+  131  yarn jar /usr/lib/hadoop-mapreduce/hadoop-mapreduce-examples.jar wordcount /user/mgpu/gadilshina/3.1.12__gadilshina_VE.txt /user/mgpu/gadilshina/output
+  132  clear
+  133  help
+  134  hdfs dfs -help
+  135  clear
+  136  wget https://github.com/BosenkoTM/cloudera-quickstart/blob/main/data/athlete.snappy.parquet
+  137  ls
+  138  clear
+  139  unzip babs_open_data_year_1.zip
+  140  wget https://community.cloudera.com/xgkfq28377/attachments/xgkfq28377/Questions/87306/1/babs_open_data_year_1.zip
+  141  ls
+  142  unzip babs_open_data_year_1.zip
+  143  ls
+  144  mkdir ex_3_2
+  145  ls
+  146  clear
+  147  cd  ex_3_2
+  148  ls
+  149  wget https://github.com/BosenkoTM/cloudera-quickstart/blob/main/data/geolocation.zip
+  150  ls
+  151  unzip geolocation.zip
+  152  wget https://github.com/BosenkoTM/cloudera-quickstart/blob/main/data/geolocation.csv
+  153  ls
+  154  wget https://github.com/BosenkoTM/cloudera-quickstart/blob/main/data/trucks.csv
+  155  ls
+  156  clear
+  157  hisrory
+  158  history
+
